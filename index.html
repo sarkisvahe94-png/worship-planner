@@ -6,7 +6,8 @@
   <title>Worship Planner & Cut-Slip Generator</title>
   <style>
     :root {
-      --primary: #2563eb;
+      --primary: #4f46e5;
+      --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
       --bg: #f8fafc;
       --card-border: #cbd5e1;
     }
@@ -14,15 +15,52 @@
     body { margin: 0; background: var(--bg); color: #1e293b; }
 
     /* Web Layout */
-    .no-print { max-width: 900px; margin: 20px auto; padding: 0 15px; }
-    .panel { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-    h2 { margin-top: 0; font-size: 1.25rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
-    .grid-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 12px; }
-    input, select, button { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
-    button { background: var(--primary); color: white; border: none; cursor: pointer; font-weight: 600; }
+    .no-print { max-width: 920px; margin: 30px auto; padding: 0 16px; }
+    
+    /* Colored App Header */
+    .app-header {
+      background: var(--primary-gradient);
+      color: white;
+      padding: 24px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25);
+    }
+    .app-header h1 { margin: 0 0 6px 0; font-size: 26px; }
+    .app-header p { margin: 0; opacity: 0.9; font-size: 14px; }
+
+    .panel { background: white; border-radius: 10px; padding: 22px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; }
+    h2 { margin-top: 0; font-size: 1.15rem; color: #4338ca; border-bottom: 2px solid #e0e7ff; padding-bottom: 8px; }
+    
+    .grid-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 12px; }
+    input, select, button { padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
+    input:focus, select:focus { outline: none; border-color: var(--primary); ring: 2px ring var(--primary); }
+    
+    button { background: var(--primary); color: white; border: none; cursor: pointer; font-weight: 600; transition: opacity 0.15s; }
     button:hover { opacity: 0.9; }
     button.btn-danger { background: #ef4444; }
-    .setlist-row { display: grid; grid-template-columns: 2fr 1fr 1.5fr 40px; gap: 8px; margin-bottom: 8px; align-items: center; }
+    
+    /* Setlist Rows with Song Numbers */
+    .setlist-row {
+      display: grid;
+      grid-template-columns: 36px 2.2fr 80px 1.8fr 36px;
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+    .song-number {
+      font-weight: 700;
+      color: #6366f1;
+      font-size: 14px;
+      text-align: center;
+      background: #eef2ff;
+      border-radius: 6px;
+      padding: 8px 0;
+    }
+
+    .tags-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .tag-badge { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 4px 10px; border-radius: 20px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; }
+    .tag-badge span { cursor: pointer; color: #ef4444; font-weight: bold; }
 
     /* Printable Slip Grid */
     #printArea { display: none; }
@@ -34,34 +72,59 @@
         display: grid !important;
         grid-template-columns: 1fr 1fr;
         grid-auto-rows: 1fr;
-        gap: 0;
         width: 100vw;
         height: 100vh;
         page-break-after: avoid;
+        box-sizing: border-box;
       }
       .cut-slip {
         border: 1px dashed #64748b;
-        padding: 18px;
+        padding: 16px;
         position: relative;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        justify-content: flex-start;
+        box-sizing: border-box;
       }
+      /* Colored main header on printed cut slips */
       .cut-slip-header {
-        border-bottom: 2px solid #000;
-        padding-bottom: 6px;
-        margin-bottom: 8px;
+        background: #4f46e5 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        color: white !important;
+        padding: 8px 12px;
+        border-radius: 6px;
+        margin-bottom: 12px;
       }
-      .cut-slip-header h1 { font-size: 16px; margin: 0; text-transform: uppercase; }
-      .cut-slip-meta { font-size: 11px; color: #333; margin-top: 2px; }
+      .cut-slip-header h1 {
+        font-size: 15px;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .cut-slip-meta {
+        font-size: 11px;
+        opacity: 0.9;
+        margin-top: 2px;
+      }
       .slip-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-      .slip-table th, .slip-table td { text-align: left; padding: 5px 2px; border-bottom: 1px solid #e2e8f0; }
-      .slip-table th { font-weight: bold; border-bottom: 1.5px solid #000; }
-      .badge-key { font-weight: 700; background: #eee; padding: 2px 5px; border-radius: 4px; }
+      .slip-table th, .slip-table td { text-align: left; padding: 6px 4px; border-bottom: 1px solid #e2e8f0; }
+      .slip-table th { font-weight: 700; color: #334155; border-bottom: 2px solid #cbd5e1; }
+      .slip-num { font-weight: bold; color: #4f46e5; width: 20px; }
+      .badge-key {
+        font-weight: 700;
+        background: #eef2ff !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        color: #3730a3;
+        padding: 2px 6px;
+        border-radius: 4px;
+        border: 1px solid #c7d2fe;
+      }
       .scissor-guide {
         position: absolute;
-        top: 2px;
-        right: 4px;
+        top: 3px;
+        right: 6px;
         font-size: 10px;
         color: #94a3b8;
       }
@@ -71,22 +134,26 @@
 <body>
 
 <div class="no-print">
-  <h1>Worship Service & Cut-Slip Generator</h1>
+  <!-- Colored Banner Header -->
+  <div class="app-header">
+    <h1>Worship Service Planner</h1>
+    <p>Build sets, assign singers, and export instant printable cut slips</p>
+  </div>
 
   <!-- 1. Service Meta -->
   <div class="panel">
     <h2>1. Worship Service Details</h2>
     <div class="grid-form">
       <div>
-        <label>Service Name</label><br>
+        <label style="font-size: 13px; font-weight: 600;">Service Name</label><br>
         <input type="text" id="serviceName" value="Sunday Morning Worship" style="width:100%">
       </div>
       <div>
-        <label>Date</label><br>
+        <label style="font-size: 13px; font-weight: 600;">Date</label><br>
         <input type="date" id="serviceDate" style="width:100%">
       </div>
       <div>
-        <label>Copies to Print (Musicians)</label><br>
+        <label style="font-size: 13px; font-weight: 600;">Copies to Print</label><br>
         <input type="number" id="slipCopies" value="4" min="1" max="8" style="width:100%">
       </div>
     </div>
@@ -96,31 +163,44 @@
   <div class="panel">
     <h2>2. Current Setlist</h2>
     <div id="setlistItems"></div>
-    <button onclick="addSetlistRow()">+ Add Song to Set</button>
+    <button onclick="addSetlistRow()">+ Add Song</button>
   </div>
 
-  <!-- 3. Add to Song Library -->
+  <!-- 3. Singer Management -->
   <div class="panel">
-    <h2>3. Add New Song to Library</h2>
+    <h2>3. Vocalists & Team Members</h2>
+    <div style="display: flex; gap: 8px;">
+      <input type="text" id="newSingerName" placeholder="New Singer Name" style="flex: 1;">
+      <button onclick="addSinger()">Add Singer</button>
+    </div>
+    <div class="tags-container" id="singersList"></div>
+  </div>
+
+  <!-- 4. Song Library Management -->
+  <div class="panel">
+    <h2>4. Song Library Database</h2>
     <div class="grid-form">
       <input type="text" id="newTitle" placeholder="Song Title (e.g. Way Maker)">
       <input type="text" id="newKey" placeholder="Default Key (e.g. G)">
       <input type="number" id="newBpm" placeholder="BPM (e.g. 68)">
-      <button onclick="saveNewSong()">Save Song</button>
+      <button onclick="saveNewSong()">Save to Library</button>
     </div>
   </div>
 
+  <!-- Print Button -->
   <div style="text-align: center; margin: 30px 0;">
-    <button onclick="prepareAndPrint()" style="padding: 12px 24px; font-size: 16px; background: #059669;">🖨️ Print Worship Cut-Slips</button>
+    <button onclick="prepareAndPrint()" style="padding: 14px 28px; font-size: 16px; background: #059669; border-radius: 8px; box-shadow: 0 4px 12px rgba(5,150,105,0.25);">
+      🖨️ Print Worship Cut-Slips
+    </button>
   </div>
 </div>
 
-<!-- Hidden printable cut area -->
+<!-- Hidden printable cut-out grid -->
 <div id="printArea"></div>
 
 <script>
-  // Initial default library
-  const DEFAULT_LIBRARY = [
+  // Initial Datasets
+  const DEFAULT_SONGS = [
     { title: "Way Maker", key: "G", bpm: 68 },
     { title: "Goodness of God", key: "Ab", bpm: 63 },
     { title: "What A Beautiful Name", key: "D", bpm: 68 },
@@ -128,15 +208,72 @@
     { title: "Praise", key: "Ab", bpm: 127 }
   ];
 
-  let library = JSON.parse(localStorage.getItem('worship_library')) || DEFAULT_LIBRARY;
+  const DEFAULT_SINGERS = ["Worship Team", "Sarah", "David", "Michael", "Grace"];
+
+  let library = JSON.parse(localStorage.getItem('worship_library')) || DEFAULT_SONGS;
+  let singers = JSON.parse(localStorage.getItem('worship_singers')) || DEFAULT_SINGERS;
 
   function init() {
     document.getElementById('serviceDate').valueAsDate = new Date();
+    renderSingersList();
+
+    // Default starting rows
     addSetlistRow("Way Maker", "G", "Sarah");
     addSetlistRow("Goodness of God", "G", "David");
-    addSetlistRow("Praise", "Ab", "Team");
+    addSetlistRow("Praise", "Ab", "Worship Team");
   }
 
+  // --- Singer Management ---
+  function saveSingers() {
+    localStorage.setItem('worship_singers', JSON.stringify(singers));
+    renderSingersList();
+    refreshAllSingerDropdowns();
+  }
+
+  function addSinger() {
+    const input = document.getElementById('newSingerName');
+    const name = input.value.trim();
+    if (!name) return;
+    if (!singers.includes(name)) {
+      singers.push(name);
+      saveSingers();
+    }
+    input.value = '';
+  }
+
+  function removeSinger(index) {
+    singers.splice(index, 1);
+    saveSingers();
+  }
+
+  function renderSingersList() {
+    const container = document.getElementById('singersList');
+    container.innerHTML = singers.map((s, idx) => `
+      <div class="tag-badge">
+        ${s} <span onclick="removeSinger(${idx})">&times;</span>
+      </div>
+    `).join('');
+  }
+
+  function refreshAllSingerDropdowns() {
+    document.querySelectorAll('.singer-select').forEach(sel => {
+      const currentVal = sel.value;
+      populateSingerDropdown(sel);
+      sel.value = currentVal;
+    });
+  }
+
+  function populateSingerDropdown(selectElem) {
+    selectElem.innerHTML = '<option value="">-- Lead Singer --</option>';
+    singers.forEach(singer => {
+      const opt = document.createElement('option');
+      opt.value = singer;
+      opt.textContent = singer;
+      selectElem.appendChild(opt);
+    });
+  }
+
+  // --- Song Library Management ---
   function saveLibrary() {
     localStorage.setItem('worship_library', JSON.stringify(library));
   }
@@ -154,24 +291,31 @@
     document.getElementById('newKey').value = '';
     document.getElementById('newBpm').value = '';
 
-    // Refresh all dropdowns
     document.querySelectorAll('.song-select').forEach(sel => {
       const current = sel.value;
-      populateDropdown(sel);
+      populateSongDropdown(sel);
       sel.value = current;
     });
     alert('Song added to library!');
   }
 
-  function populateDropdown(selectElem) {
+  function populateSongDropdown(selectElem) {
     selectElem.innerHTML = '<option value="">-- Choose Song --</option>';
     library.forEach(s => {
       const opt = document.createElement('option');
       opt.value = s.title;
       opt.textContent = `${s.title} (${s.key})`;
       opt.dataset.key = s.key;
-      opt.dataset.bpm = s.bpm;
       selectElem.appendChild(opt);
+    });
+  }
+
+  // --- Setlist Rows & Numbering ---
+  function updateRowNumbers() {
+    const rows = document.querySelectorAll('.setlist-row');
+    rows.forEach((row, index) => {
+      const numBadge = row.querySelector('.song-number');
+      if (numBadge) numBadge.textContent = `#${index + 1}`;
     });
   }
 
@@ -180,15 +324,21 @@
     const div = document.createElement('div');
     div.className = 'setlist-row';
 
+    // 1. Song Number
+    const numberSpan = document.createElement('span');
+    numberSpan.className = 'song-number';
+    numberSpan.textContent = '#';
+
+    // 2. Song Select Dropdown
     const select = document.createElement('select');
     select.className = 'song-select';
-    populateDropdown(select);
+    populateSongDropdown(select);
     select.value = title;
 
+    // 3. Tonality / Key Input
     const keyInput = document.createElement('input');
     keyInput.placeholder = "Key";
     keyInput.value = key;
-    keyInput.style.width = "60px";
 
     select.addEventListener('change', () => {
       const selected = select.selectedOptions[0];
@@ -197,22 +347,32 @@
       }
     });
 
-    const singerInput = document.createElement('input');
-    singerInput.placeholder = "Lead Singer";
-    singerInput.value = singer;
+    // 4. Singer Dropdown
+    const singerSelect = document.createElement('select');
+    singerSelect.className = 'singer-select';
+    populateSingerDropdown(singerSelect);
+    singerSelect.value = singer;
 
+    // 5. Delete Button
     const delBtn = document.createElement('button');
     delBtn.textContent = '✕';
     delBtn.className = 'btn-danger';
-    delBtn.onclick = () => div.remove();
+    delBtn.onclick = () => {
+      div.remove();
+      updateRowNumbers();
+    };
 
+    div.appendChild(numberSpan);
     div.appendChild(select);
     div.appendChild(keyInput);
-    div.appendChild(singerInput);
+    div.appendChild(singerSelect);
     div.appendChild(delBtn);
     container.appendChild(div);
+
+    updateRowNumbers();
   }
 
+  // --- Print Preparation ---
   function prepareAndPrint() {
     const serviceName = document.getElementById('serviceName').value;
     const serviceDate = document.getElementById('serviceDate').value;
@@ -221,8 +381,8 @@
     const rows = [];
     document.querySelectorAll('.setlist-row').forEach(row => {
       const title = row.querySelector('.song-select').value;
-      const key = row.querySelectorAll('input')[0].value;
-      const singer = row.querySelectorAll('input')[1].value;
+      const key = row.querySelector('input').value;
+      const singer = row.querySelector('.singer-select').value;
       if (title) rows.push({ title, key, singer });
     });
 
@@ -231,14 +391,14 @@
     const printArea = document.getElementById('printArea');
     printArea.innerHTML = '';
 
-    // Create identical slips for musicians to cut
     for (let i = 0; i < copies; i++) {
       const slip = document.createElement('div');
       slip.className = 'cut-slip';
 
       let rowsHtml = rows.map((r, idx) => `
         <tr>
-          <td>${idx + 1}. <strong>${r.title}</strong></td>
+          <td class="slip-num">${idx + 1}.</td>
+          <td><strong>${r.title}</strong></td>
           <td><span class="badge-key">${r.key}</span></td>
           <td>${r.singer || '-'}</td>
         </tr>
@@ -254,6 +414,7 @@
           <table class="slip-table">
             <thead>
               <tr>
+                <th>#</th>
                 <th>Song</th>
                 <th>Key</th>
                 <th>Lead</th>
