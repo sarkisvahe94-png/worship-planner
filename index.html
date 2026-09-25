@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Worship Planner & Cut-Slip Generator</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --bg: #f8fafc;
+      --card-border: #cbd5e1;
+    }
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { margin: 0; background: var(--bg); color: #1e293b; }
+
+    /* Web Layout */
+    .no-print { max-width: 900px; margin: 20px auto; padding: 0 15px; }
+    .panel { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    h2 { margin-top: 0; font-size: 1.25rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+    .grid-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 12px; }
+    input, select, button { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
+    button { background: var(--primary); color: white; border: none; cursor: pointer; font-weight: 600; }
+    button:hover { opacity: 0.9; }
+    button.btn-danger { background: #ef4444; }
+    .setlist-row { display: grid; grid-template-columns: 2fr 1fr 1.5fr 40px; gap: 8px; margin-bottom: 8px; align-items: center; }
+
+    /* Printable Slip Grid */
+    #printArea { display: none; }
+
+    @media print {
+      body { background: white; margin: 0; padding: 0; }
+      .no-print { display: none !important; }
+      #printArea {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        grid-auto-rows: 1fr;
+        gap: 0;
+        width: 100vw;
+        height: 100vh;
+        page-break-after: avoid;
+      }
+      .cut-slip {
+        border: 1px dashed #64748b;
+        padding: 18px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .cut-slip-header {
+        border-bottom: 2px solid #000;
+        padding-bottom: 6px;
+        margin-bottom: 8px;
+      }
+      .cut-slip-header h1 { font-size: 16px; margin: 0; text-transform: uppercase; }
+      .cut-slip-meta { font-size: 11px; color: #333; margin-top: 2px; }
+      .slip-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+      .slip-table th, .slip-table td { text-align: left; padding: 5px 2px; border-bottom: 1px solid #e2e8f0; }
+      .slip-table th { font-weight: bold; border-bottom: 1.5px solid #000; }
+      .badge-key { font-weight: 700; background: #eee; padding: 2px 5px; border-radius: 4px; }
+      .scissor-guide {
+        position: absolute;
+        top: 2px;
+        right: 4px;
+        font-size: 10px;
+        color: #94a3b8;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="no-print">
+  <h1>Worship Service & Cut-Slip Generator</h1>
+
+  <!-- 1. Service Meta -->
+  <div class="panel">
+    <h2>1. Worship Service Details</h2>
+    <div class="grid-form">
+      <div>
+        <label>Service Name</label><br>
+        <input type="text" id="serviceName" value="Sunday Morning Worship" style="width:100%">
+      </div>
+      <div>
+        <label>Date</label><br>
+        <input type="date" id="serviceDate" style="width:100%">
+      </div>
+      <div>
+        <label>Copies to Print (Musicians)</label><br>
+        <input type="number" id="slipCopies" value="4" min="1" max="8" style="width:100%">
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Setlist Builder -->
+  <div class="panel">
+    <h2>2. Current Setlist</h2>
+    <div id="setlistItems"></div>
+    <button onclick="addSetlistRow()">+ Add Song to Set</button>
+  </div>
+
+  <!-- 3. Add to Song Library -->
+  <div class="panel">
+    <h2>3. Add New Song to Library</h2>
+    <div class="grid-form">
+      <input type="text" id="newTitle" placeholder="Song Title (e.g. Way Maker)">
+      <input type="text" id="newKey" placeholder="Default Key (e.g. G)">
+      <input type="number" id="newBpm" placeholder="BPM (e.g. 68)">
+      <button onclick="saveNewSong()">Save Song</button>
+    </div>
+  </div>
+
+  <div style="text-align: center; margin: 30px 0;">
+    <button onclick="prepareAndPrint()" style="padding: 12px 24px; font-size: 16px; background: #059669;">🖨️ Print Worship Cut-Slips</button>
+  </div>
+</div>
+
+<!-- Hidden printable cut area -->
+<div id="printArea"></div>
+
+<script>
+  // Initial default library
+  const DEFAULT_LIBRARY = [
+    { title: "Way Maker", key: "G", bpm: 68 },
+    { title: "Goodness of God", key: "Ab", bpm: 63 },
+    { title: "What A Beautiful Name", key: "D", bpm: 68 },
+    { title: "Graves Into Gardens", key: "B", bpm: 70 },
+    { title: "Praise", key: "Ab", bpm: 127 }
+  ];
+
+  let library = JSON.parse(localStorage.getItem('worship_library')) || DEFAULT_LIBRARY;
+
+  function init() {
+    document.getElementById('serviceDate').valueAsDate = new Date();
+    addSetlistRow("Way Maker", "G", "Sarah");
+    addSetlistRow("Goodness of God", "G", "David");
+    addSetlistRow("Praise", "Ab", "Team");
+  }
+
+  function saveLibrary() {
+    localStorage.setItem('worship_library', JSON.stringify(library));
+  }
+
+  function saveNewSong() {
+    const title = document.getElementById('newTitle').value.trim();
+    const key = document.getElementById('newKey').value.trim() || 'C';
+    const bpm = document.getElementById('newBpm').value.trim() || '-';
+
+    if (!title) return alert('Enter a song title');
+
+    library.push({ title, key, bpm });
+    saveLibrary();
+    document.getElementById('newTitle').value = '';
+    document.getElementById('newKey').value = '';
+    document.getElementById('newBpm').value = '';
+
+    // Refresh all dropdowns
+    document.querySelectorAll('.song-select').forEach(sel => {
+      const current = sel.value;
+      populateDropdown(sel);
+      sel.value = current;
+    });
+    alert('Song added to library!');
+  }
+
+  function populateDropdown(selectElem) {
+    selectElem.innerHTML = '<option value="">-- Choose Song --</option>';
+    library.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.title;
+      opt.textContent = `${s.title} (${s.key})`;
+      opt.dataset.key = s.key;
+      opt.dataset.bpm = s.bpm;
+      selectElem.appendChild(opt);
+    });
+  }
+
+  function addSetlistRow(title = "", key = "", singer = "") {
+    const container = document.getElementById('setlistItems');
+    const div = document.createElement('div');
+    div.className = 'setlist-row';
+
+    const select = document.createElement('select');
+    select.className = 'song-select';
+    populateDropdown(select);
+    select.value = title;
+
+    const keyInput = document.createElement('input');
+    keyInput.placeholder = "Key";
+    keyInput.value = key;
+    keyInput.style.width = "60px";
+
+    select.addEventListener('change', () => {
+      const selected = select.selectedOptions[0];
+      if (selected && selected.dataset.key) {
+        keyInput.value = selected.dataset.key;
+      }
+    });
+
+    const singerInput = document.createElement('input');
+    singerInput.placeholder = "Lead Singer";
+    singerInput.value = singer;
+
+    const delBtn = document.createElement('button');
+    delBtn.textContent = '✕';
+    delBtn.className = 'btn-danger';
+    delBtn.onclick = () => div.remove();
+
+    div.appendChild(select);
+    div.appendChild(keyInput);
+    div.appendChild(singerInput);
+    div.appendChild(delBtn);
+    container.appendChild(div);
+  }
+
+  function prepareAndPrint() {
+    const serviceName = document.getElementById('serviceName').value;
+    const serviceDate = document.getElementById('serviceDate').value;
+    const copies = parseInt(document.getElementById('slipCopies').value) || 4;
+
+    const rows = [];
+    document.querySelectorAll('.setlist-row').forEach(row => {
+      const title = row.querySelector('.song-select').value;
+      const key = row.querySelectorAll('input')[0].value;
+      const singer = row.querySelectorAll('input')[1].value;
+      if (title) rows.push({ title, key, singer });
+    });
+
+    if (rows.length === 0) return alert('Please add at least one song to your setlist.');
+
+    const printArea = document.getElementById('printArea');
+    printArea.innerHTML = '';
+
+    // Create identical slips for musicians to cut
+    for (let i = 0; i < copies; i++) {
+      const slip = document.createElement('div');
+      slip.className = 'cut-slip';
+
+      let rowsHtml = rows.map((r, idx) => `
+        <tr>
+          <td>${idx + 1}. <strong>${r.title}</strong></td>
+          <td><span class="badge-key">${r.key}</span></td>
+          <td>${r.singer || '-'}</td>
+        </tr>
+      `).join('');
+
+      slip.innerHTML = `
+        <div class="scissor-guide">✂ - - - - -</div>
+        <div>
+          <div class="cut-slip-header">
+            <h1>${serviceName}</h1>
+            <div class="cut-slip-meta">${serviceDate}</div>
+          </div>
+          <table class="slip-table">
+            <thead>
+              <tr>
+                <th>Song</th>
+                <th>Key</th>
+                <th>Lead</th>
+              </tr>
+            </thead>
+            <tbody>${rowsHtml}</tbody>
+          </table>
+        </div>
+      `;
+      printArea.appendChild(slip);
+    }
+
+    window.print();
+  }
+
+  init();
+</script>
+</body>
+</html>
