@@ -3,60 +3,104 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Worship Planner & Cut-Slip Generator</title>
+  <title>Worship Studio & Setlist Architect</title>
   <style>
     :root {
-      --primary: #4f46e5;
-      --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      --primary: #4338ca;
+      --accent: #6366f1;
+      --gradient: linear-gradient(135deg, #3730a3 0%, #6366f1 50%, #8b5cf6 100%);
       --bg: #f8fafc;
-      --card-border: #cbd5e1;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
     }
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { margin: 0; background: var(--bg); color: #1e293b; }
+    body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 60px; }
 
-    /* Web Layout */
-    .no-print { max-width: 920px; margin: 30px auto; padding: 0 16px; }
-    
-    /* Colored App Header */
+    .no-print { max-width: 980px; margin: 24px auto; padding: 0 16px; }
+
+    /* Creative Header Banner */
     .app-header {
-      background: var(--primary-gradient);
+      background: var(--gradient);
       color: white;
-      padding: 24px;
-      border-radius: 12px;
+      padding: 28px 24px;
+      border-radius: 16px;
       margin-bottom: 24px;
-      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25);
+      box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.3);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
     }
-    .app-header h1 { margin: 0 0 6px 0; font-size: 26px; }
+    .app-header h1 { margin: 0 0 6px 0; font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
     .app-header p { margin: 0; opacity: 0.9; font-size: 14px; }
 
-    .panel { background: white; border-radius: 10px; padding: 22px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; }
-    h2 { margin-top: 0; font-size: 1.15rem; color: #4338ca; border-bottom: 2px solid #e0e7ff; padding-bottom: 8px; }
+    .panel {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      border: 1px solid var(--border);
+    }
+    h2 { margin-top: 0; font-size: 1.15rem; color: var(--primary); border-bottom: 2px solid #e0e7ff; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+
+    .grid-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 12px; }
+    input, select, button { padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; }
+    input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); }
     
-    .grid-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 12px; }
-    input, select, button { padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
-    input:focus, select:focus { outline: none; border-color: var(--primary); ring: 2px ring var(--primary); }
-    
-    button { background: var(--primary); color: white; border: none; cursor: pointer; font-weight: 600; transition: opacity 0.15s; }
-    button:hover { opacity: 0.9; }
+    button { background: var(--accent); color: white; border: none; cursor: pointer; font-weight: 600; border-radius: 8px; transition: transform 0.1s ease, opacity 0.15s; }
+    button:hover { opacity: 0.95; transform: translateY(-1px); }
+    button:active { transform: translateY(0); }
     button.btn-danger { background: #ef4444; }
-    
-    /* Setlist Rows with Song Numbers */
+    button.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+    button.btn-secondary:hover { background: #e2e8f0; }
+
+    /* Reorderable Setlist Rows */
     .setlist-row {
       display: grid;
-      grid-template-columns: 36px 2.2fr 80px 1.8fr 36px;
-      gap: 10px;
+      grid-template-columns: 44px 34px 2.2fr 80px 1.5fr 1.6fr 36px 36px;
+      gap: 8px;
       margin-bottom: 10px;
       align-items: center;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 8px 10px;
+      border-radius: 10px;
+      transition: background 0.2s, box-shadow 0.2s;
+      cursor: grab;
     }
+    .setlist-row.dragging { opacity: 0.4; background: #e0e7ff; border-style: dashed; }
+    .setlist-row:hover { background: #ffffff; box-shadow: 0 3px 8px rgba(0,0,0,0.05); }
+
+    .reorder-btns { display: flex; flex-direction: column; gap: 2px; }
+    .reorder-btns button { padding: 2px 4px; font-size: 9px; line-height: 1; border-radius: 4px; background: #e2e8f0; color: #334155; }
+    
     .song-number {
-      font-weight: 700;
-      color: #6366f1;
-      font-size: 14px;
+      font-weight: 800;
+      color: var(--primary);
+      font-size: 13px;
       text-align: center;
-      background: #eef2ff;
+      background: #e0e7ff;
       border-radius: 6px;
-      padding: 8px 0;
+      padding: 6px 0;
     }
+
+    .drive-link-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+    }
+    .drive-link-btn:hover { background: #dbeafe; }
 
     .tags-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
     .tag-badge { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 4px 10px; border-radius: 20px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; }
@@ -79,53 +123,47 @@
       }
       .cut-slip {
         border: 1px dashed #64748b;
-        padding: 16px;
+        padding: 14px 16px;
         position: relative;
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
         box-sizing: border-box;
       }
-      /* Colored main header on printed cut slips */
       .cut-slip-header {
-        background: #4f46e5 !important;
+        background: #3730a3 !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
         color: white !important;
         padding: 8px 12px;
         border-radius: 6px;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
       }
-      .cut-slip-header h1 {
-        font-size: 15px;
-        margin: 0;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-      .cut-slip-meta {
-        font-size: 11px;
-        opacity: 0.9;
-        margin-top: 2px;
-      }
-      .slip-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-      .slip-table th, .slip-table td { text-align: left; padding: 6px 4px; border-bottom: 1px solid #e2e8f0; }
-      .slip-table th { font-weight: 700; color: #334155; border-bottom: 2px solid #cbd5e1; }
-      .slip-num { font-weight: bold; color: #4f46e5; width: 20px; }
+      .cut-slip-header h1 { font-size: 14px; margin: 0; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; }
+      .cut-slip-meta { font-size: 10.5px; opacity: 0.9; margin-top: 2px; }
+      
+      .slip-table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+      .slip-table th, .slip-table td { text-align: left; padding: 5px 4px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+      .slip-table th { font-weight: 700; color: #1e293b; border-bottom: 2px solid #cbd5e1; }
+      .slip-num { font-weight: 800; color: #3730a3; width: 18px; }
+      
       .badge-key {
-        font-weight: 700;
-        background: #eef2ff !important;
+        font-weight: 800;
+        background: #e0e7ff !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
         color: #3730a3;
         padding: 2px 6px;
         border-radius: 4px;
         border: 1px solid #c7d2fe;
+        display: inline-block;
       }
+      .transition-note { font-size: 9.5px; color: #64748b; font-style: italic; display: block; }
       .scissor-guide {
         position: absolute;
-        top: 3px;
+        top: 2px;
         right: 6px;
-        font-size: 10px;
+        font-size: 9px;
         color: #94a3b8;
       }
     }
@@ -134,10 +172,15 @@
 <body>
 
 <div class="no-print">
-  <!-- Colored Banner Header -->
+  <!-- Creative Header -->
   <div class="app-header">
-    <h1>Worship Service Planner</h1>
-    <p>Build sets, assign singers, and export instant printable cut slips</p>
+    <div>
+      <h1>Worship Set Architect</h1>
+      <p>Rearrange setlists on the fly, link Google Drive chords, and print pocket cut-slips</p>
+    </div>
+    <button onclick="prepareAndPrint()" style="padding: 12px 22px; font-size: 15px; background: #10b981; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">
+      🖨️ Print Worship Slips
+    </button>
   </div>
 
   <!-- 1. Service Meta -->
@@ -145,67 +188,64 @@
     <h2>1. Worship Service Details</h2>
     <div class="grid-form">
       <div>
-        <label style="font-size: 13px; font-weight: 600;">Service Name</label><br>
+        <label style="font-size: 12px; font-weight: 700; color: #64748b;">SERVICE TITLE</label><br>
         <input type="text" id="serviceName" value="Sunday Morning Worship" style="width:100%">
       </div>
       <div>
-        <label style="font-size: 13px; font-weight: 600;">Date</label><br>
+        <label style="font-size: 12px; font-weight: 700; color: #64748b;">DATE</label><br>
         <input type="date" id="serviceDate" style="width:100%">
       </div>
       <div>
-        <label style="font-size: 13px; font-weight: 600;">Copies to Print</label><br>
+        <label style="font-size: 12px; font-weight: 700; color: #64748b;">COPIES FOR MUSICIANS</label><br>
         <input type="number" id="slipCopies" value="4" min="1" max="8" style="width:100%">
       </div>
     </div>
   </div>
 
-  <!-- 2. Setlist Builder -->
+  <!-- 2. Setlist Builder with Drag-and-Drop Flipping -->
   <div class="panel">
-    <h2>2. Current Setlist</h2>
+    <h2>2. Worship Setlist (Drag or use ▲/▼ to flip songs)</h2>
     <div id="setlistItems"></div>
-    <button onclick="addSetlistRow()">+ Add Song</button>
+    <div style="margin-top: 14px; display: flex; gap: 10px;">
+      <button onclick="addSetlistRow()">+ Add Song to Set</button>
+    </div>
   </div>
 
-  <!-- 3. Singer Management -->
+  <!-- 3. Vocalists Team -->
   <div class="panel">
-    <h2>3. Vocalists & Team Members</h2>
+    <h2>3. Vocalists & Team</h2>
     <div style="display: flex; gap: 8px;">
       <input type="text" id="newSingerName" placeholder="New Singer Name" style="flex: 1;">
-      <button onclick="addSinger()">Add Singer</button>
+      <button onclick="addSinger()">Add Member</button>
     </div>
     <div class="tags-container" id="singersList"></div>
   </div>
 
-  <!-- 4. Song Library Management -->
+  <!-- 4. Song Library with Google Drive Links -->
   <div class="panel">
-    <h2>4. Song Library Database</h2>
+    <h2>4. Song Library & Google Drive Links</h2>
     <div class="grid-form">
       <input type="text" id="newTitle" placeholder="Song Title (e.g. Way Maker)">
       <input type="text" id="newKey" placeholder="Default Key (e.g. G)">
       <input type="number" id="newBpm" placeholder="BPM (e.g. 68)">
+      <input type="url" id="newDriveLink" placeholder="Google Drive Link (Chords/Sheet)">
       <button onclick="saveNewSong()">Save to Library</button>
     </div>
-  </div>
-
-  <!-- Print Button -->
-  <div style="text-align: center; margin: 30px 0;">
-    <button onclick="prepareAndPrint()" style="padding: 14px 28px; font-size: 16px; background: #059669; border-radius: 8px; box-shadow: 0 4px 12px rgba(5,150,105,0.25);">
-      🖨️ Print Worship Cut-Slips
-    </button>
+    <div id="libraryList" style="margin-top: 14px; font-size: 13px; max-height: 200px; overflow-y: auto;"></div>
   </div>
 </div>
 
-<!-- Hidden printable cut-out grid -->
+<!-- Print grid target -->
 <div id="printArea"></div>
 
 <script>
-  // Initial Datasets
+  // Initial library pre-loaded with mock items
   const DEFAULT_SONGS = [
-    { title: "Way Maker", key: "G", bpm: 68 },
-    { title: "Goodness of God", key: "Ab", bpm: 63 },
-    { title: "What A Beautiful Name", key: "D", bpm: 68 },
-    { title: "Graves Into Gardens", key: "B", bpm: 70 },
-    { title: "Praise", key: "Ab", bpm: 127 }
+    { title: "Way Maker", key: "G", bpm: 68, driveUrl: "https://drive.google.com" },
+    { title: "Goodness of God", key: "Ab", bpm: 63, driveUrl: "https://drive.google.com" },
+    { title: "What A Beautiful Name", key: "D", bpm: 68, driveUrl: "" },
+    { title: "Graves Into Gardens", key: "B", bpm: 70, driveUrl: "" },
+    { title: "Praise", key: "Ab", bpm: 127, driveUrl: "" }
   ];
 
   const DEFAULT_SINGERS = ["Worship Team", "Sarah", "David", "Michael", "Grace"];
@@ -216,18 +256,230 @@
   function init() {
     document.getElementById('serviceDate').valueAsDate = new Date();
     renderSingersList();
+    renderLibraryList();
 
-    // Default starting rows
-    addSetlistRow("Way Maker", "G", "Sarah");
-    addSetlistRow("Goodness of God", "G", "David");
-    addSetlistRow("Praise", "Ab", "Worship Team");
+    // Default Starting Setlist
+    addSetlistRow("Way Maker", "G", "Sarah", "Modulate into chorus");
+    addSetlistRow("Goodness of God", "G", "David", "Acoustic intro only");
+    addSetlistRow("Praise", "Ab", "Worship Team", "High energy finish");
+  }
+
+  // --- Reordering & Flipping Logic ---
+  function moveRow(button, direction) {
+    const row = button.closest('.setlist-row');
+    if (direction === -1 && row.previousElementSibling) {
+      row.parentNode.insertBefore(row, row.previousElementSibling);
+    } else if (direction === 1 && row.nextElementSibling) {
+      row.parentNode.insertBefore(row.nextElementSibling, row);
+    }
+    updateRowNumbers();
+  }
+
+  function setupDragAndDrop(row) {
+    row.draggable = true;
+    row.addEventListener('dragstart', () => row.classList.add('dragging'));
+    row.addEventListener('dragend', () => {
+      row.classList.remove('dragging');
+      updateRowNumbers();
+    });
+
+    const container = document.getElementById('setlistItems');
+    container.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      const afterElement = getDragAfterElement(container, e.clientY);
+      const dragging = document.querySelector('.dragging');
+      if (dragging) {
+        if (afterElement == null) {
+          container.appendChild(dragging);
+        } else {
+          container.insertBefore(dragging, afterElement);
+        }
+      }
+    });
+  }
+
+  function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.setlist-row:not(.dragging)')];
+    return draggableElements.reduce((closest, child) => {
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height / 2;
+      if (offset < 0 && offset > closest.offset) {
+        return { offset: offset, element: child };
+      } else {
+        return closest;
+      }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+  }
+
+  function updateRowNumbers() {
+    const rows = document.querySelectorAll('.setlist-row');
+    rows.forEach((row, index) => {
+      const numSpan = row.querySelector('.song-number');
+      if (numSpan) numSpan.textContent = `#${index + 1}`;
+    });
+  }
+
+  // --- Dynamic Setlist Builder ---
+  function addSetlistRow(title = "", key = "", singer = "", transition = "") {
+    const container = document.getElementById('setlistItems');
+    const div = document.createElement('div');
+    div.className = 'setlist-row';
+
+    // 1. Move buttons (▲ / ▼)
+    const reorderDiv = document.createElement('div');
+    reorderDiv.className = 'reorder-btns';
+    reorderDiv.innerHTML = `
+      <button type="button" onclick="moveRow(this, -1)">▲</button>
+      <button type="button" onclick="moveRow(this, 1)">▼</button>
+    `;
+
+    // 2. Song Number Badge
+    const numberSpan = document.createElement('span');
+    numberSpan.className = 'song-number';
+    numberSpan.textContent = '#';
+
+    // 3. Song Selection Dropdown
+    const select = document.createElement('select');
+    select.className = 'song-select';
+    populateSongDropdown(select);
+    select.value = title;
+
+    // 4. Key Input
+    const keyInput = document.createElement('input');
+    keyInput.placeholder = "Key";
+    keyInput.value = key;
+
+    // 5. Singer Dropdown
+    const singerSelect = document.createElement('select');
+    singerSelect.className = 'singer-select';
+    populateSingerDropdown(singerSelect);
+    singerSelect.value = singer;
+
+    // 6. Transition / Musical Note Input
+    const noteInput = document.createElement('input');
+    noteInput.className = 'note-input';
+    noteInput.placeholder = "Transition / Flow Note (optional)";
+    noteInput.value = transition;
+
+    // 7. Drive Link Button
+    const driveLinkBtn = document.createElement('a');
+    driveLinkBtn.className = 'drive-link-btn';
+    driveLinkBtn.target = "_blank";
+    driveLinkBtn.textContent = '🔗 Drive';
+    updateDriveButton(driveLinkBtn, title);
+
+    select.addEventListener('change', () => {
+      const selected = select.selectedOptions[0];
+      if (selected && selected.dataset.key) {
+        keyInput.value = selected.dataset.key;
+      }
+      updateDriveButton(driveLinkBtn, select.value);
+    });
+
+    // 8. Delete Button
+    const delBtn = document.createElement('button');
+    delBtn.textContent = '✕';
+    delBtn.className = 'btn-danger';
+    delBtn.onclick = () => {
+      div.remove();
+      updateRowNumbers();
+    };
+
+    div.appendChild(reorderDiv);
+    div.appendChild(numberSpan);
+    div.appendChild(select);
+    div.appendChild(keyInput);
+    div.appendChild(singerSelect);
+    div.appendChild(noteInput);
+    div.appendChild(driveLinkBtn);
+    div.appendChild(delBtn);
+
+    setupDragAndDrop(div);
+    container.appendChild(div);
+    updateRowNumbers();
+  }
+
+  function updateDriveButton(buttonElem, songTitle) {
+    const song = library.find(s => s.title === songTitle);
+    if (song && song.driveUrl && song.driveUrl.trim() !== "") {
+      buttonElem.href = song.driveUrl;
+      buttonElem.style.display = "inline-flex";
+    } else {
+      buttonElem.style.display = "none";
+    }
+  }
+
+  // --- Song Library & Drive URLs ---
+  function saveLibrary() {
+    localStorage.setItem('worship_library', JSON.stringify(library));
+    renderLibraryList();
+  }
+
+  function saveNewSong() {
+    const title = document.getElementById('newTitle').value.trim();
+    const key = document.getElementById('newKey').value.trim() || 'C';
+    const bpm = document.getElementById('newBpm').value.trim() || '-';
+    const driveUrl = document.getElementById('newDriveLink').value.trim();
+
+    if (!title) return alert('Please enter a song title');
+
+    library.push({ title, key, bpm, driveUrl });
+    saveLibrary();
+
+    document.getElementById('newTitle').value = '';
+    document.getElementById('newKey').value = '';
+    document.getElementById('newBpm').value = '';
+    document.getElementById('newDriveLink').value = '';
+
+    document.querySelectorAll('.song-select').forEach(sel => {
+      const current = sel.value;
+      populateSongDropdown(sel);
+      sel.value = current;
+    });
+    alert('Song added to library!');
+  }
+
+  function populateSongDropdown(selectElem) {
+    selectElem.innerHTML = '<option value="">-- Choose Song --</option>';
+    library.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.title;
+      opt.textContent = `${s.title} (${s.key})${s.bpm && s.bpm !== '-' ? ` [${s.bpm} BPM]` : ''}`;
+      opt.dataset.key = s.key;
+      opt.dataset.drive = s.driveUrl || '';
+      selectElem.appendChild(opt);
+    });
+  }
+
+  function renderLibraryList() {
+    const container = document.getElementById('libraryList');
+    container.innerHTML = library.map((s, idx) => `
+      <div style="display:flex; justify-content:space-between; align-items:center; padding: 6px 0; border-bottom: 1px solid #f1f5f9;">
+        <span><strong>${s.title}</strong> (Key: ${s.key}, BPM: ${s.bpm || '-'})</span>
+        <span>
+          ${s.driveUrl ? `<a href="${s.driveUrl}" target="_blank" style="color: #4f46e5; text-decoration:none; font-weight:600; margin-right:10px;">📄 Open Drive Sheet</a>` : '<span style="color:#94a3b8; margin-right:10px;">No sheet link</span>'}
+          <button class="btn-danger" style="padding:2px 8px; font-size:11px;" onclick="removeSong(${idx})">Delete</button>
+        </span>
+      </div>
+    `).join('');
+  }
+
+  function removeSong(idx) {
+    if (confirm(`Remove "${library[idx].title}" from library?`)) {
+      library.splice(idx, 1);
+      saveLibrary();
+    }
   }
 
   // --- Singer Management ---
   function saveSingers() {
     localStorage.setItem('worship_singers', JSON.stringify(singers));
     renderSingersList();
-    refreshAllSingerDropdowns();
+    document.querySelectorAll('.singer-select').forEach(sel => {
+      const val = sel.value;
+      populateSingerDropdown(sel);
+      sel.value = val;
+    });
   }
 
   function addSinger() {
@@ -255,14 +507,6 @@
     `).join('');
   }
 
-  function refreshAllSingerDropdowns() {
-    document.querySelectorAll('.singer-select').forEach(sel => {
-      const currentVal = sel.value;
-      populateSingerDropdown(sel);
-      sel.value = currentVal;
-    });
-  }
-
   function populateSingerDropdown(selectElem) {
     selectElem.innerHTML = '<option value="">-- Lead Singer --</option>';
     singers.forEach(singer => {
@@ -273,106 +517,7 @@
     });
   }
 
-  // --- Song Library Management ---
-  function saveLibrary() {
-    localStorage.setItem('worship_library', JSON.stringify(library));
-  }
-
-  function saveNewSong() {
-    const title = document.getElementById('newTitle').value.trim();
-    const key = document.getElementById('newKey').value.trim() || 'C';
-    const bpm = document.getElementById('newBpm').value.trim() || '-';
-
-    if (!title) return alert('Enter a song title');
-
-    library.push({ title, key, bpm });
-    saveLibrary();
-    document.getElementById('newTitle').value = '';
-    document.getElementById('newKey').value = '';
-    document.getElementById('newBpm').value = '';
-
-    document.querySelectorAll('.song-select').forEach(sel => {
-      const current = sel.value;
-      populateSongDropdown(sel);
-      sel.value = current;
-    });
-    alert('Song added to library!');
-  }
-
-  function populateSongDropdown(selectElem) {
-    selectElem.innerHTML = '<option value="">-- Choose Song --</option>';
-    library.forEach(s => {
-      const opt = document.createElement('option');
-      opt.value = s.title;
-      opt.textContent = `${s.title} (${s.key})`;
-      opt.dataset.key = s.key;
-      selectElem.appendChild(opt);
-    });
-  }
-
-  // --- Setlist Rows & Numbering ---
-  function updateRowNumbers() {
-    const rows = document.querySelectorAll('.setlist-row');
-    rows.forEach((row, index) => {
-      const numBadge = row.querySelector('.song-number');
-      if (numBadge) numBadge.textContent = `#${index + 1}`;
-    });
-  }
-
-  function addSetlistRow(title = "", key = "", singer = "") {
-    const container = document.getElementById('setlistItems');
-    const div = document.createElement('div');
-    div.className = 'setlist-row';
-
-    // 1. Song Number
-    const numberSpan = document.createElement('span');
-    numberSpan.className = 'song-number';
-    numberSpan.textContent = '#';
-
-    // 2. Song Select Dropdown
-    const select = document.createElement('select');
-    select.className = 'song-select';
-    populateSongDropdown(select);
-    select.value = title;
-
-    // 3. Tonality / Key Input
-    const keyInput = document.createElement('input');
-    keyInput.placeholder = "Key";
-    keyInput.value = key;
-
-    select.addEventListener('change', () => {
-      const selected = select.selectedOptions[0];
-      if (selected && selected.dataset.key) {
-        keyInput.value = selected.dataset.key;
-      }
-    });
-
-    // 4. Singer Dropdown
-    const singerSelect = document.createElement('select');
-    singerSelect.className = 'singer-select';
-    populateSingerDropdown(singerSelect);
-    singerSelect.value = singer;
-
-    // 5. Delete Button
-    const delBtn = document.createElement('button');
-    delBtn.textContent = '✕';
-    delBtn.className = 'btn-danger';
-    delBtn.onclick = () => {
-      div.remove();
-      updateRowNumbers();
-    };
-
-    div.appendChild(numberSpan);
-    div.appendChild(select);
-    div.appendChild(keyInput);
-    div.appendChild(singerSelect);
-    div.appendChild(delBtn);
-    container.appendChild(div);
-
-    updateRowNumbers();
-  }
-
-  // --- Print Preparation ---
+  // --- Print Cut-Slips Generation ---
   function prepareAndPrint() {
     const serviceName = document.getElementById('serviceName').value;
     const serviceDate = document.getElementById('serviceDate').value;
@@ -381,9 +526,13 @@
     const rows = [];
     document.querySelectorAll('.setlist-row').forEach(row => {
       const title = row.querySelector('.song-select').value;
-      const key = row.querySelector('input').value;
+      const key = row.querySelectorAll('input')[0].value;
       const singer = row.querySelector('.singer-select').value;
-      if (title) rows.push({ title, key, singer });
+      const note = row.querySelector('.note-input').value;
+      const songData = library.find(s => s.title === title);
+      const bpm = (songData && songData.bpm && songData.bpm !== '-') ? `${songData.bpm} bpm` : '';
+
+      if (title) rows.push({ title, key, singer, note, bpm });
     });
 
     if (rows.length === 0) return alert('Please add at least one song to your setlist.');
@@ -398,8 +547,14 @@
       let rowsHtml = rows.map((r, idx) => `
         <tr>
           <td class="slip-num">${idx + 1}.</td>
-          <td><strong>${r.title}</strong></td>
-          <td><span class="badge-key">${r.key}</span></td>
+          <td>
+            <strong>${r.title}</strong>
+            ${r.note ? `<span class="transition-note">↳ ${r.note}</span>` : ''}
+          </td>
+          <td>
+            <span class="badge-key">${r.key}</span>
+            ${r.bpm ? `<span style="font-size:9px; color:#64748b; margin-left:2px;">${r.bpm}</span>` : ''}
+          </td>
           <td>${r.singer || '-'}</td>
         </tr>
       `).join('');
@@ -415,8 +570,8 @@
             <thead>
               <tr>
                 <th>#</th>
-                <th>Song</th>
-                <th>Key</th>
+                <th>Song / Transition</th>
+                <th>Key / BPM</th>
                 <th>Lead</th>
               </tr>
             </thead>
