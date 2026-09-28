@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Worship Studio & Setlist Architect</title>
+  <title>Worship Studio Pro</title>
   <style>
     :root {
       --primary: #4338ca;
+      --primary-dark: #312e81;
       --accent: #6366f1;
       --gradient: linear-gradient(135deg, #3730a3 0%, #6366f1 50%, #8b5cf6 100%);
       --bg: #f8fafc;
@@ -14,35 +15,85 @@
       --border: #e2e8f0;
       --text: #1e293b;
     }
-    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
     body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 60px; }
 
-    .no-print { max-width: 980px; margin: 24px auto; padding: 0 16px; }
+    .no-print { max-width: 1020px; margin: 20px auto; padding: 0 16px; }
 
     /* Header Banner */
     .app-header {
       background: var(--gradient);
       color: white;
-      padding: 24px;
-      border-radius: 16px;
-      margin-bottom: 24px;
+      padding: 22px 24px;
+      border-radius: 14px;
+      margin-bottom: 20px;
       box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.3);
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 16px;
+      gap: 14px;
     }
-    .app-header h1 { margin: 0 0 6px 0; font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
-    .app-header p { margin: 0; opacity: 0.9; font-size: 14px; }
-    .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .app-header h1 { margin: 0 0 4px 0; font-size: 24px; font-weight: 800; }
+    .app-header p { margin: 0; opacity: 0.9; font-size: 13.5px; }
+
+    /* Role Switcher Pill */
+    .role-badge-box {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      padding: 6px 12px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+    .role-badge-box select {
+      background: white;
+      color: var(--primary-dark);
+      border: none;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    /* Tab Navigation */
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 2px solid #e2e8f0;
+      margin-bottom: 20px;
+    }
+    .tab-btn {
+      padding: 10px 20px;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      font-size: 15px;
+      border-radius: 0;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover { color: var(--primary); }
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      background: transparent;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
 
     .panel {
       background: var(--card-bg);
       border-radius: 12px;
       padding: 22px;
       margin-bottom: 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
       border: 1px solid var(--border);
     }
     h2 { margin-top: 0; font-size: 1.15rem; color: var(--primary); border-bottom: 2px solid #e0e7ff; padding-bottom: 8px; }
@@ -50,19 +101,20 @@
     .grid-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 12px; }
     input, select, button { padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; }
     input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); }
-    
-    button { background: var(--accent); color: white; border: none; cursor: pointer; font-weight: 600; border-radius: 8px; transition: opacity 0.15s, transform 0.1s; }
-    button:hover { opacity: 0.95; transform: translateY(-1px); }
-    button:active { transform: translateY(0); }
+
+    button { background: var(--accent); color: white; border: none; cursor: pointer; font-weight: 600; border-radius: 8px; transition: opacity 0.15s, transform 0.05s; }
+    button:hover { opacity: 0.95; }
+    button:active { transform: translateY(1px); }
     button.btn-success { background: #059669; }
+    button.btn-whatsapp { background: #25D366; color: white; }
     button.btn-danger { background: #ef4444; }
     button.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
-    button.btn-secondary:hover { background: #e2e8f0; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
 
     /* Setlist Rows */
     .setlist-row {
       display: grid;
-      grid-template-columns: 44px 34px 2.2fr 80px 1.5fr 1.6fr 36px 36px;
+      grid-template-columns: 38px 34px 2.2fr 80px 1.5fr 1.6fr 36px 36px;
       gap: 8px;
       margin-bottom: 10px;
       align-items: center;
@@ -77,7 +129,7 @@
 
     .reorder-btns { display: flex; flex-direction: column; gap: 2px; }
     .reorder-btns button { padding: 2px 4px; font-size: 9px; line-height: 1; border-radius: 4px; background: #e2e8f0; color: #334155; }
-    
+
     .song-number {
       font-weight: 800;
       color: var(--primary);
@@ -96,47 +148,27 @@
       color: #2563eb;
       text-decoration: none;
       font-weight: 600;
-      padding: 4px 8px;
+      padding: 5px 8px;
       border-radius: 6px;
       background: #eff6ff;
       border: 1px solid #bfdbfe;
     }
-    .drive-link-btn:hover { background: #dbeafe; }
 
     .tags-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-    .tag-badge { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 4px 10px; border-radius: 20px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; }
+    .tag-badge { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 5px 12px; border-radius: 20px; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; }
     .tag-badge span { cursor: pointer; color: #ef4444; font-weight: bold; }
 
-    /* History & Library Cards */
-    .history-card {
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 12px 16px;
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #fafafa;
-    }
+    /* Search Box */
+    .search-bar-wrap { position: relative; margin-bottom: 14px; }
+    .search-bar-wrap input { width: 100%; padding-left: 36px; font-size: 14px; }
+    .search-icon { position: absolute; left: 12px; top: 11px; color: #94a3b8; font-size: 14px; }
 
-    /* Modal for Editing Songs */
+    /* Modal */
     .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.45);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      display: none; align-items: center; justify-content: center; z-index: 1000;
     }
-    .modal-box {
-      background: white;
-      padding: 24px;
-      border-radius: 12px;
-      width: 92%;
-      max-width: 480px;
-      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15);
-    }
+    .modal-box { background: white; padding: 24px; border-radius: 12px; width: 92%; max-width: 460px; }
 
     /* Printable Slip Grid */
     #printArea { display: none; }
@@ -174,8 +206,8 @@
       .cut-slip-header h1 { font-size: 14px; margin: 0; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; }
       .cut-slip-meta { font-size: 10.5px; opacity: 0.9; margin-top: 2px; }
       
-      .slip-table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
-      .slip-table th, .slip-table td { text-align: left; padding: 5px 4px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+      .slip-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+      .slip-table th, .slip-table td { text-align: left; padding: 6px 4px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
       .slip-table th { font-weight: 700; color: #1e293b; border-bottom: 2px solid #cbd5e1; }
       .slip-num { font-weight: 800; color: #3730a3; width: 18px; }
       
@@ -191,112 +223,135 @@
         display: inline-block;
       }
       .transition-note { font-size: 9.5px; color: #64748b; font-style: italic; display: block; }
-      .scissor-guide {
-        position: absolute;
-        top: 2px;
-        right: 6px;
-        font-size: 9px;
-        color: #94a3b8;
-      }
+      .scissor-guide { position: absolute; top: 2px; right: 6px; font-size: 9px; color: #94a3b8; }
     }
   </style>
 </head>
 <body>
 
 <div class="no-print">
-  <!-- Header -->
+  <!-- Top App Bar -->
   <div class="app-header">
     <div>
-      <h1>Worship Set Architect</h1>
-      <p>Rearrange songs, edit library chords, save service history, and print slips</p>
+      <h1>Worship Studio</h1>
+      <p>Bilingual (English / Armenian / Arabic) Service Architect</p>
     </div>
-    <div class="header-actions">
-      <button onclick="saveSetlistToHistory()" style="background: #10b981; padding: 11px 18px;">
-        💾 Save to History
+    
+    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+      <!-- Role Switcher -->
+      <div class="role-badge-box">
+        <span>Role:</span>
+        <select id="userRole" onchange="changeRole(this.value)">
+          <option value="admin">Admin 👑</option>
+          <option value="editor">Editor ✏️</option>
+          <option value="viewer">Viewer 👁️</option>
+        </select>
+      </div>
+
+      <button class="btn-whatsapp" onclick="shareViaWhatsApp()">
+        💬 Share WhatsApp
       </button>
-      <button onclick="prepareAndPrint()" style="background: #059669; padding: 11px 18px;">
+      <button class="btn-success" onclick="prepareAndPrint()">
         🖨️ Print Slips
       </button>
     </div>
   </div>
 
-  <!-- 1. Service Meta -->
-  <div class="panel">
-    <h2>1. Worship Service Details</h2>
-    <div class="grid-form">
-      <div>
-        <label style="font-size: 12px; font-weight: 700; color: #64748b;">SERVICE TITLE</label><br>
-        <input type="text" id="serviceName" value="Sunday Morning Worship" style="width:100%">
+  <!-- Multi-Page Tabs -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('plannerTab', this)">Worship Planner</button>
+    <button class="tab-btn" id="libraryTabBtn" onclick="switchTab('libraryTab', this)">Team & Library Database</button>
+    <button class="tab-btn" onclick="switchTab('historyTab', this)">Service History</button>
+  </div>
+
+  <!-- TAB 1: WORSHIP PLANNER -->
+  <div id="plannerTab" class="tab-content active">
+    <!-- 1. Service Meta -->
+    <div class="panel">
+      <h2>1. Worship Service Details</h2>
+      <div class="grid-form">
+        <div>
+          <label style="font-size: 12px; font-weight: 700; color: #64748b;">SERVICE TITLE</label><br>
+          <input type="text" id="serviceName" value="Sunday Morning Worship" style="width:100%">
+        </div>
+        <div>
+          <label style="font-size: 12px; font-weight: 700; color: #64748b;">DATE</label><br>
+          <input type="date" id="serviceDate" style="width:100%">
+        </div>
+        <div>
+          <label style="font-size: 12px; font-weight: 700; color: #64748b;">COPIES FOR MUSICIANS</label><br>
+          <input type="number" id="slipCopies" value="4" min="1" max="8" style="width:100%">
+        </div>
       </div>
-      <div>
-        <label style="font-size: 12px; font-weight: 700; color: #64748b;">DATE</label><br>
-        <input type="date" id="serviceDate" style="width:100%">
+    </div>
+
+    <!-- 2. Setlist Builder -->
+    <div class="panel">
+      <h2>2. Setlist (Drag or use ▲/▼ to flip songs)</h2>
+      <div id="setlistItems"></div>
+      <div style="margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap;">
+        <button id="addSongBtn" onclick="addSetlistRow()">+ Add Song to Set</button>
+        <button id="saveHistoryBtn" class="btn-success" onclick="saveSetlistToHistory()">💾 Save Set to History</button>
+        <button id="clearSetBtn" class="btn-secondary" onclick="clearCurrentSetlist()">Clear Setlist</button>
       </div>
-      <div>
-        <label style="font-size: 12px; font-weight: 700; color: #64748b;">COPIES FOR MUSICIANS</label><br>
-        <input type="number" id="slipCopies" value="4" min="1" max="8" style="width:100%">
+    </div>
+  </div>
+
+  <!-- TAB 2: VOCALISTS & SONG LIBRARY (Dedicated Page) -->
+  <div id="libraryTab" class="tab-content">
+    <!-- Vocalists Management -->
+    <div class="panel">
+      <h2>Vocalists & Team Roster</h2>
+      <div id="singerAdminControls" style="display: flex; gap: 8px; margin-bottom: 12px;">
+        <input type="text" id="newSingerName" placeholder="New Singer Name" style="flex: 1;">
+        <button onclick="addSinger()">Add Member</button>
       </div>
+      <div class="tags-container" id="singersList"></div>
+    </div>
+
+    <!-- Master Library -->
+    <div class="panel">
+      <h2>Song Library (Armenian, English & Arabic Search)</h2>
+      
+      <!-- Multilingual Search Box -->
+      <div class="search-bar-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="librarySearchInput" oninput="filterLibrarySearch()" placeholder="Search song title or key in English, Armenian (հայերեն) or Arabic (عربي)...">
+      </div>
+
+      <!-- Add Song Form -->
+      <div id="libraryAdminAddForm" class="grid-form">
+        <input type="text" id="newTitle" placeholder="Song Title (e.g. Way Maker / Տէր Կեցո / يسوع حي)">
+        <input type="text" id="newKey" placeholder="Default Key (e.g. G)">
+        <input type="url" id="newDriveLink" placeholder="Google Drive Link (Chords/Sheet)">
+        <button onclick="saveNewSong()">Save to Library</button>
+      </div>
+
+      <div id="libraryList" style="margin-top: 14px; font-size: 13.5px; max-height: 420px; overflow-y: auto;"></div>
     </div>
   </div>
 
-  <!-- 2. Setlist Builder with Drag & Drop -->
-  <div class="panel">
-    <h2>2. Current Setlist (Drag or use ▲/▼ to flip songs)</h2>
-    <div id="setlistItems"></div>
-    <div style="margin-top: 14px; display: flex; gap: 10px;">
-      <button onclick="addSetlistRow()">+ Add Song to Set</button>
-      <button class="btn-secondary" onclick="clearCurrentSetlist()">Clear Setlist</button>
+  <!-- TAB 3: SERVICE HISTORY -->
+  <div id="historyTab" class="tab-content">
+    <div class="panel">
+      <h2>Saved Services & Setlist Archive</h2>
+      <div id="historyList"></div>
     </div>
-  </div>
-
-  <!-- 3. Vocalists Team -->
-  <div class="panel">
-    <h2>3. Vocalists & Team</h2>
-    <div style="display: flex; gap: 8px;">
-      <input type="text" id="newSingerName" placeholder="New Singer Name" style="flex: 1;">
-      <button onclick="addSinger()">Add Member</button>
-    </div>
-    <div class="tags-container" id="singersList"></div>
-  </div>
-
-  <!-- 4. Editable Song Library -->
-  <div class="panel">
-    <h2>4. Song Library (Add & Edit Details / Google Drive Links)</h2>
-    <div class="grid-form">
-      <input type="text" id="newTitle" placeholder="Song Title (e.g. Way Maker)">
-      <input type="text" id="newKey" placeholder="Default Key (e.g. G)">
-      <input type="number" id="newBpm" placeholder="BPM (e.g. 68)">
-      <input type="url" id="newDriveLink" placeholder="Google Drive Link (Chords/Sheet)">
-      <button onclick="saveNewSong()">Save to Library</button>
-    </div>
-    <div id="libraryList" style="margin-top: 14px; font-size: 13px; max-height: 250px; overflow-y: auto;"></div>
-  </div>
-
-  <!-- 5. Service History -->
-  <div class="panel">
-    <h2>5. Saved Services & Setlist History</h2>
-    <div id="historyList"></div>
   </div>
 </div>
 
 <!-- Modal Dialog to Edit a Song -->
 <div id="editSongModal" class="modal-backdrop">
   <div class="modal-box">
-    <h3 style="margin-top: 0; color: var(--primary);">Edit Song Details</h3>
+    <h3 style="margin-top: 0; color: var(--primary);">Edit Song in Library</h3>
     <input type="hidden" id="editIndex">
     <div style="margin-bottom: 12px;">
-      <label style="font-size: 12px; font-weight: bold;">Song Title</label>
+      <label style="font-size: 12px; font-weight: bold;">Song Title (English / Armenian / Arabic)</label>
       <input type="text" id="editTitle" style="width: 100%; margin-top: 4px;">
     </div>
-    <div style="display: flex; gap: 10px; margin-bottom: 12px;">
-      <div style="flex: 1;">
-        <label style="font-size: 12px; font-weight: bold;">Default Key</label>
-        <input type="text" id="editKey" style="width: 100%; margin-top: 4px;">
-      </div>
-      <div style="flex: 1;">
-        <label style="font-size: 12px; font-weight: bold;">BPM</label>
-        <input type="number" id="editBpm" style="width: 100%; margin-top: 4px;">
-      </div>
+    <div style="margin-bottom: 12px;">
+      <label style="font-size: 12px; font-weight: bold;">Default Key</label>
+      <input type="text" id="editKey" style="width: 100%; margin-top: 4px;">
     </div>
     <div style="margin-bottom: 16px;">
       <label style="font-size: 12px; font-weight: bold;">Google Drive Chord Sheet URL</label>
@@ -313,33 +368,98 @@
 <div id="printArea"></div>
 
 <script>
+  // Initial Datasets with Multilingual Examples
   const DEFAULT_SONGS = [
-    { title: "Way Maker", key: "G", bpm: 68, driveUrl: "https://drive.google.com" },
-    { title: "Goodness of God", key: "Ab", bpm: 63, driveUrl: "https://drive.google.com" },
-    { title: "What A Beautiful Name", key: "D", bpm: 68, driveUrl: "" },
-    { title: "Graves Into Gardens", key: "B", bpm: 70, driveUrl: "" },
-    { title: "Praise", key: "Ab", bpm: 127, driveUrl: "" }
+    { title: "Way Maker", key: "G", driveUrl: "https://drive.google.com" },
+    { title: "Goodness of God", key: "Ab", driveUrl: "https://drive.google.com" },
+    { title: "Տէր Կեցո (Der Getso)", key: "Em", driveUrl: "" },
+    { title: "Սուրբ Է (Soorp Eh)", key: "D", driveUrl: "" },
+    { title: "يسوع حي (Yassou Hayy)", key: "C", driveUrl: "" },
+    { title: "بارك بلادي (Barek Biladi)", key: "F", driveUrl: "" },
+    { title: "Praise", key: "Ab", driveUrl: "" }
   ];
 
-  const DEFAULT_SINGERS = ["Worship Team", "Sarah", "David", "Michael", "Grace"];
+  const DEFAULT_SINGERS = ["Worship Team", "Sarah", "David", "Hagop", "Nour"];
 
   let library = JSON.parse(localStorage.getItem('worship_library')) || DEFAULT_SONGS;
   let singers = JSON.parse(localStorage.getItem('worship_singers')) || DEFAULT_SINGERS;
   let history = JSON.parse(localStorage.getItem('worship_history')) || [];
+  let currentRole = localStorage.getItem('worship_user_role') || 'admin';
 
   function init() {
     document.getElementById('serviceDate').valueAsDate = new Date();
+    document.getElementById('userRole').value = currentRole;
+
     renderSingersList();
     renderLibraryList();
     renderHistoryList();
 
-    // Starter Setlist
-    addSetlistRow("Way Maker", "G", "Sarah", "Bridge build up");
-    addSetlistRow("Goodness of God", "G", "David", "Acoustic intro");
-    addSetlistRow("Praise", "Ab", "Worship Team", "End on chorus");
+    // Default Starting Setlist
+    addSetlistRow("Way Maker", "G", "Sarah", "Modulate into chorus");
+    addSetlistRow("Goodness of God", "G", "David", "Acoustic intro only");
+    addSetlistRow("يسوع حي (Yassou Hayy)", "C", "Nour", "Bridge repeat");
+
+    applyRoleRestrictions();
   }
 
-  // --- Reordering Logic ---
+  // --- Role-Based Access Control ---
+  function changeRole(newRole) {
+    currentRole = newRole;
+    localStorage.setItem('worship_user_role', newRole);
+    applyRoleRestrictions();
+  }
+
+  function applyRoleRestrictions() {
+    const isViewer = currentRole === 'viewer';
+    const isEditor = currentRole === 'editor';
+    const isAdmin = currentRole === 'admin';
+
+    // Inputs on setlist
+    document.querySelectorAll('.setlist-row input, .setlist-row select').forEach(el => {
+      el.disabled = isViewer;
+    });
+    document.querySelectorAll('.reorder-btns button, .setlist-row .btn-danger').forEach(el => {
+      el.style.display = isViewer ? 'none' : '';
+    });
+
+    // Main action buttons
+    document.getElementById('addSongBtn').disabled = isViewer;
+    document.getElementById('saveHistoryBtn').disabled = isViewer;
+    document.getElementById('clearSetBtn').disabled = isViewer;
+    document.getElementById('serviceName').disabled = isViewer;
+    document.getElementById('serviceDate').disabled = isViewer;
+
+    // Library Tab Admin controls
+    document.getElementById('singerAdminControls').style.display = isAdmin ? 'flex' : 'none';
+    document.getElementById('libraryAdminAddForm').style.display = isAdmin ? 'grid' : 'none';
+
+    renderSingersList();
+    renderLibraryList();
+  }
+
+  // --- Tab Navigation ---
+  function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // --- Multilingual Text Normalizer (Arabic, Armenian, English) ---
+  function normalizeMultilingual(str) {
+    if (!str) return "";
+    return str
+      .toLowerCase()
+      // Normalize Arabic diacritics & letter variations
+      .replace(/[\u064B-\u065F]/g, "") // Tatweel/harakat
+      .replace(/[إأآا]/g, "ا")
+      .replace(/ى/g, "ي")
+      .replace(/ة/g, "ه")
+      // Armenian normalization (handle casing and standard ligatures)
+      .trim();
+  }
+
+  // --- Reordering & Flipping Logic ---
   function moveRow(button, direction) {
     const row = button.closest('.setlist-row');
     if (direction === -1 && row.previousElementSibling) {
@@ -351,7 +471,7 @@
   }
 
   function setupDragAndDrop(row) {
-    row.draggable = true;
+    row.draggable = currentRole !== 'viewer';
     row.addEventListener('dragstart', () => row.classList.add('dragging'));
     row.addEventListener('dragend', () => {
       row.classList.remove('dragging');
@@ -360,6 +480,7 @@
 
     const container = document.getElementById('setlistItems');
     container.addEventListener('dragover', (e) => {
+      if (currentRole === 'viewer') return;
       e.preventDefault();
       const afterElement = getDragAfterElement(container, e.clientY);
       const dragging = document.querySelector('.dragging');
@@ -464,6 +585,7 @@
     setupDragAndDrop(div);
     container.appendChild(div);
     updateRowNumbers();
+    applyRoleRestrictions();
   }
 
   function updateDriveButton(buttonElem, songTitle) {
@@ -477,43 +599,36 @@
   }
 
   function clearCurrentSetlist() {
-    if (confirm("Clear all songs from current setlist?")) {
+    if (confirm("Clear all songs from the current setlist?")) {
       document.getElementById('setlistItems').innerHTML = '';
     }
   }
 
-  // --- Editable Song Library ---
+  // --- Song Library & Multilingual Search ---
   function saveLibrary() {
     localStorage.setItem('worship_library', JSON.stringify(library));
-    renderLibraryList();
+    filterLibrarySearch();
     document.querySelectorAll('.song-select').forEach(sel => {
       const val = sel.value;
       populateSongDropdown(sel);
       sel.value = val;
-    });
-    // refresh all drive buttons on current set
-    document.querySelectorAll('.setlist-row').forEach(row => {
-      const sel = row.querySelector('.song-select');
-      const btn = row.querySelector('.drive-link-btn');
-      if (sel && btn) updateDriveButton(btn, sel.value);
     });
   }
 
   function saveNewSong() {
     const title = document.getElementById('newTitle').value.trim();
     const key = document.getElementById('newKey').value.trim() || 'C';
-    const bpm = document.getElementById('newBpm').value.trim() || '-';
     const driveUrl = document.getElementById('newDriveLink').value.trim();
 
-    if (!title) return alert('Enter a song title');
+    if (!title) return alert('Please enter a song title');
 
-    library.push({ title, key, bpm, driveUrl });
+    library.push({ title, key, driveUrl });
     saveLibrary();
 
     document.getElementById('newTitle').value = '';
     document.getElementById('newKey').value = '';
-    document.getElementById('newBpm').value = '';
     document.getElementById('newDriveLink').value = '';
+    alert('Song added to library!');
   }
 
   function populateSongDropdown(selectElem) {
@@ -521,24 +636,43 @@
     library.forEach(s => {
       const opt = document.createElement('option');
       opt.value = s.title;
-      opt.textContent = `${s.title} (${s.key})${s.bpm && s.bpm !== '-' ? ` [${s.bpm} BPM]` : ''}`;
+      opt.textContent = `${s.title} (${s.key})`;
       opt.dataset.key = s.key;
       selectElem.appendChild(opt);
     });
   }
 
-  function renderLibraryList() {
+  function filterLibrarySearch() {
+    const query = normalizeMultilingual(document.getElementById('librarySearchInput').value);
+    const filtered = library.filter(s => {
+      const titleMatch = normalizeMultilingual(s.title).includes(query);
+      const keyMatch = normalizeMultilingual(s.key).includes(query);
+      return titleMatch || keyMatch;
+    });
+    renderLibraryList(filtered);
+  }
+
+  function renderLibraryList(itemsToRender = library) {
     const container = document.getElementById('libraryList');
-    container.innerHTML = library.map((s, idx) => `
-      <div style="display:flex; justify-content:space-between; align-items:center; padding: 7px 0; border-bottom: 1px solid #f1f5f9;">
-        <span><strong>${s.title}</strong> (Key: ${s.key}, BPM: ${s.bpm || '-'})</span>
-        <span style="display:flex; gap: 6px; align-items:center;">
-          ${s.driveUrl ? `<a href="${s.driveUrl}" target="_blank" style="color: #4f46e5; text-decoration:none; font-weight:600; margin-right:4px;">📄 Drive</a>` : ''}
-          <button class="btn-secondary" style="padding:3px 8px; font-size:11px;" onclick="openEditModal(${idx})">✏️ Edit</button>
-          <button class="btn-danger" style="padding:3px 8px; font-size:11px;" onclick="removeSong(${idx})">Delete</button>
-        </span>
-      </div>
-    `).join('');
+    if (itemsToRender.length === 0) {
+      container.innerHTML = '<p style="color: #94a3b8; padding: 10px 0;">No matching songs found.</p>';
+      return;
+    }
+    const isAdmin = currentRole === 'admin';
+
+    container.innerHTML = itemsToRender.map((s) => {
+      const realIndex = library.indexOf(s);
+      return `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
+          <span><strong>${s.title}</strong> <span style="color:#6366f1; font-weight:700;">(${s.key})</span></span>
+          <span style="display:flex; gap: 6px; align-items:center;">
+            ${s.driveUrl ? `<a href="${s.driveUrl}" target="_blank" style="color: #4f46e5; text-decoration:none; font-weight:600; margin-right:4px;">📄 Drive</a>` : ''}
+            ${isAdmin ? `<button class="btn-secondary" style="padding:3px 8px; font-size:11px;" onclick="openEditModal(${realIndex})">✏️ Edit</button>` : ''}
+            ${isAdmin ? `<button class="btn-danger" style="padding:3px 8px; font-size:11px;" onclick="removeSong(${realIndex})">Delete</button>` : ''}
+          </span>
+        </div>
+      `;
+    }).join('');
   }
 
   function openEditModal(index) {
@@ -546,7 +680,6 @@
     document.getElementById('editIndex').value = index;
     document.getElementById('editTitle').value = song.title;
     document.getElementById('editKey').value = song.key;
-    document.getElementById('editBpm').value = song.bpm !== '-' ? song.bpm : '';
     document.getElementById('editDriveUrl').value = song.driveUrl || '';
     document.getElementById('editSongModal').style.display = 'flex';
   }
@@ -559,12 +692,11 @@
     const index = parseInt(document.getElementById('editIndex').value);
     const title = document.getElementById('editTitle').value.trim();
     const key = document.getElementById('editKey').value.trim() || 'C';
-    const bpm = document.getElementById('editBpm').value.trim() || '-';
     const driveUrl = document.getElementById('editDriveUrl').value.trim();
 
     if (!title) return alert('Title cannot be blank');
 
-    library[index] = { title, key, bpm, driveUrl };
+    library[index] = { title, key, driveUrl };
     saveLibrary();
     closeEditModal();
   }
@@ -605,9 +737,10 @@
 
   function renderSingersList() {
     const container = document.getElementById('singersList');
+    const isAdmin = currentRole === 'admin';
     container.innerHTML = singers.map((s, idx) => `
       <div class="tag-badge">
-        ${s} <span onclick="removeSinger(${idx})">&times;</span>
+        ${s} ${isAdmin ? `<span onclick="removeSinger(${idx})">&times;</span>` : ''}
       </div>
     `).join('');
   }
@@ -622,12 +755,12 @@
     });
   }
 
-  // --- Setlist History Management ---
+  // --- WhatsApp Setlist Share ---
   function getActiveSetlistData() {
     const rows = [];
     document.querySelectorAll('.setlist-row').forEach(row => {
       const title = row.querySelector('.song-select').value;
-      const key = row.querySelectorAll('input')[0].value;
+      const key = row.querySelector('input').value;
       const singer = row.querySelector('.singer-select').value;
       const note = row.querySelector('.note-input').value;
       if (title) rows.push({ title, key, singer, note });
@@ -635,24 +768,41 @@
     return rows;
   }
 
+  function shareViaWhatsApp() {
+    const serviceName = document.getElementById('serviceName').value.trim();
+    const serviceDate = document.getElementById('serviceDate').value;
+    const songs = getActiveSetlistData();
+
+    if (songs.length === 0) return alert('No songs in the setlist to share.');
+
+    let text = `🎶 *${serviceName}*\n📅 Date: ${serviceDate}\n\n`;
+    songs.forEach((s, idx) => {
+      text += `${idx + 1}. *${s.title}* [Key: ${s.key}]`;
+      if (s.singer) text += ` - Lead: ${s.singer}`;
+      if (s.note) text += `\n   ↳ _Note: ${s.note}_`;
+      text += `\n`;
+    });
+
+    text += `\nPrepared for the Worship Team ✨`;
+
+    const encodedText = encodeURIComponent(text);
+    const whatsappUrl = `https://wa.me/?text=${encodedText}`;
+    window.open(whatsappUrl, '_blank');
+  }
+
+  // --- History Management ---
   function saveSetlistToHistory() {
     const serviceName = document.getElementById('serviceName').value.trim();
     const serviceDate = document.getElementById('serviceDate').value;
     const songs = getActiveSetlistData();
 
-    if (songs.length === 0) return alert('Cannot save an empty setlist to history.');
+    if (songs.length === 0) return alert('Cannot save an empty setlist.');
 
-    const entry = {
-      id: Date.now(),
-      serviceName,
-      serviceDate,
-      songs
-    };
-
-    history.unshift(entry); // Newest at the top
+    const entry = { id: Date.now(), serviceName, serviceDate, songs };
+    history.unshift(entry);
     localStorage.setItem('worship_history', JSON.stringify(history));
     renderHistoryList();
-    alert('Setlist archived in history!');
+    alert('Setlist saved to History!');
   }
 
   function renderHistoryList() {
@@ -661,8 +811,10 @@
       container.innerHTML = '<p style="color: #94a3b8; font-size: 13px;">No past services saved yet.</p>';
       return;
     }
+    const isAdmin = currentRole === 'admin';
+
     container.innerHTML = history.map((item, idx) => `
-      <div class="history-card">
+      <div style="border:1px solid #e2e8f0; border-radius:8px; padding:12px 16px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; background:#fafafa;">
         <div>
           <strong style="color: var(--primary);">${item.serviceName}</strong>
           <span style="font-size: 12px; color: #64748b; margin-left: 8px;">(${item.serviceDate})</span>
@@ -672,7 +824,7 @@
         </div>
         <div style="display:flex; gap:6px;">
           <button class="btn-secondary" style="padding: 4px 10px; font-size: 12px;" onclick="loadHistoryItem(${idx})">Load Setlist</button>
-          <button class="btn-danger" style="padding: 4px 8px; font-size: 12px;" onclick="deleteHistoryItem(${idx})">&times;</button>
+          ${isAdmin ? `<button class="btn-danger" style="padding: 4px 8px; font-size: 12px;" onclick="deleteHistoryItem(${idx})">&times;</button>` : ''}
         </div>
       </div>
     `).join('');
@@ -680,7 +832,7 @@
 
   function loadHistoryItem(index) {
     const item = history[index];
-    if (confirm(`Load setlist for "${item.serviceName}" (${item.serviceDate})? This will replace your current editor items.`)) {
+    if (confirm(`Load setlist for "${item.serviceName}" (${item.serviceDate})?`)) {
       document.getElementById('serviceName').value = item.serviceName;
       document.getElementById('serviceDate').value = item.serviceDate;
       const container = document.getElementById('setlistItems');
@@ -688,6 +840,7 @@
       item.songs.forEach(s => {
         addSetlistRow(s.title, s.key, s.singer, s.note);
       });
+      switchTab('plannerTab', document.querySelectorAll('.tab-btn')[0]);
     }
   }
 
@@ -715,24 +868,17 @@
       const slip = document.createElement('div');
       slip.className = 'cut-slip';
 
-      let rowsHtml = rows.map((r, idx) => {
-        const songData = library.find(s => s.title === r.title);
-        const bpm = (songData && songData.bpm && songData.bpm !== '-') ? `${songData.bpm} bpm` : '';
-        return `
-          <tr>
-            <td class="slip-num">${idx + 1}.</td>
-            <td>
-              <strong>${r.title}</strong>
-              ${r.note ? `<span class="transition-note">↳ ${r.note}</span>` : ''}
-            </td>
-            <td>
-              <span class="badge-key">${r.key}</span>
-              ${bpm ? `<span style="font-size:9px; color:#64748b; margin-left:2px;">${bpm}</span>` : ''}
-            </td>
-            <td>${r.singer || '-'}</td>
-          </tr>
-        `;
-      }).join('');
+      let rowsHtml = rows.map((r, idx) => `
+        <tr>
+          <td class="slip-num">${idx + 1}.</td>
+          <td>
+            <strong>${r.title}</strong>
+            ${r.note ? `<span class="transition-note">↳ ${r.note}</span>` : ''}
+          </td>
+          <td><span class="badge-key">${r.key}</span></td>
+          <td>${r.singer || '-'}</td>
+        </tr>
+      `).join('');
 
       slip.innerHTML = `
         <div class="scissor-guide">✂ - - - - -</div>
@@ -746,7 +892,7 @@
               <tr>
                 <th>#</th>
                 <th>Song / Transition</th>
-                <th>Key / BPM</th>
+                <th>Key</th>
                 <th>Lead</th>
               </tr>
             </thead>
