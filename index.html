@@ -203,8 +203,12 @@
         border-radius: 6px;
         margin-bottom: 10px;
       }
+      .cut-slip-header.sound-theme { background: #0f172a !important; }
+      .cut-slip-header.media-theme { background: #047857 !important; }
+
       .cut-slip-header h1 { font-size: 14px; margin: 0; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; }
       .cut-slip-meta { font-size: 10.5px; opacity: 0.9; margin-top: 2px; }
+      .role-tag { float: right; font-size: 10px; background: rgba(255,255,255,0.25); padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
       
       .slip-table { width: 100%; border-collapse: collapse; font-size: 12px; }
       .slip-table th, .slip-table td { text-align: left; padding: 6px 4px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
@@ -222,6 +226,16 @@
         border: 1px solid #c7d2fe;
         display: inline-block;
       }
+      .badge-sound-lead {
+        font-weight: 800;
+        background: #fee2e2 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        color: #991b1b;
+        padding: 2px 6px;
+        border-radius: 4px;
+        display: inline-block;
+      }
       .transition-note { font-size: 9.5px; color: #64748b; font-style: italic; display: block; }
       .scissor-guide { position: absolute; top: 2px; right: 6px; font-size: 9px; color: #94a3b8; }
     }
@@ -234,13 +248,13 @@
   <div class="app-header">
     <div>
       <h1>Worship Studio</h1>
-      <p>Bilingual (English / Armenian / Arabic) Service Architect</p>
+      <p>Bilingual (English / Armenian / Arabic) Service Architect & Cut-Slip Dispatch</p>
     </div>
     
     <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
       <!-- Role Switcher -->
       <div class="role-badge-box">
-        <span>Role:</span>
+        <span>Access:</span>
         <select id="userRole" onchange="changeRole(this.value)">
           <option value="admin">Admin 👑</option>
           <option value="editor">Editor ✏️</option>
@@ -266,9 +280,9 @@
 
   <!-- TAB 1: WORSHIP PLANNER -->
   <div id="plannerTab" class="tab-content active">
-    <!-- 1. Service Meta -->
+    <!-- 1. Service Meta & Cut-Slip Print Settings -->
     <div class="panel">
-      <h2>1. Worship Service Details</h2>
+      <h2>1. Worship Service & Print Dispatch</h2>
       <div class="grid-form">
         <div>
           <label style="font-size: 12px; font-weight: 700; color: #64748b;">SERVICE TITLE</label><br>
@@ -279,7 +293,15 @@
           <input type="date" id="serviceDate" style="width:100%">
         </div>
         <div>
-          <label style="font-size: 12px; font-weight: 700; color: #64748b;">COPIES FOR MUSICIANS</label><br>
+          <label style="font-size: 12px; font-weight: 700; color: #64748b;">PRINT RECIPIENT / ROLE</label><br>
+          <select id="slipTargetRole" style="width:100%">
+            <option value="musicians">🎵 Musicians & Vocalists</option>
+            <option value="sound">🎛️ Sound Engineer (Audio Cues)</option>
+            <option value="media">📽️ Media & Slides (Projection)</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size: 12px; font-weight: 700; color: #64748b;">COPIES TO CUT</label><br>
           <input type="number" id="slipCopies" value="4" min="1" max="8" style="width:100%">
         </div>
       </div>
@@ -299,7 +321,6 @@
 
   <!-- TAB 2: VOCALISTS & SONG LIBRARY (Dedicated Page) -->
   <div id="libraryTab" class="tab-content">
-    <!-- Vocalists Management -->
     <div class="panel">
       <h2>Vocalists & Team Roster</h2>
       <div id="singerAdminControls" style="display: flex; gap: 8px; margin-bottom: 12px;">
@@ -309,11 +330,10 @@
       <div class="tags-container" id="singersList"></div>
     </div>
 
-    <!-- Master Library -->
     <div class="panel">
       <h2>Song Library (Armenian, English & Arabic Search)</h2>
       
-      <!-- Multilingual Search Box -->
+      <!-- Search Engine -->
       <div class="search-bar-wrap">
         <span class="search-icon">🔍</span>
         <input type="text" id="librarySearchInput" oninput="filterLibrarySearch()" placeholder="Search song title or key in English, Armenian (հայերեն) or Arabic (عربي)...">
@@ -368,7 +388,6 @@
 <div id="printArea"></div>
 
 <script>
-  // Initial Datasets with Multilingual Examples
   const DEFAULT_SONGS = [
     { title: "Way Maker", key: "G", driveUrl: "https://drive.google.com" },
     { title: "Goodness of God", key: "Ab", driveUrl: "https://drive.google.com" },
@@ -402,7 +421,7 @@
     applyRoleRestrictions();
   }
 
-  // --- Role-Based Access Control ---
+  // --- Role Management ---
   function changeRole(newRole) {
     currentRole = newRole;
     localStorage.setItem('worship_user_role', newRole);
@@ -411,10 +430,8 @@
 
   function applyRoleRestrictions() {
     const isViewer = currentRole === 'viewer';
-    const isEditor = currentRole === 'editor';
     const isAdmin = currentRole === 'admin';
 
-    // Inputs on setlist
     document.querySelectorAll('.setlist-row input, .setlist-row select').forEach(el => {
       el.disabled = isViewer;
     });
@@ -422,14 +439,12 @@
       el.style.display = isViewer ? 'none' : '';
     });
 
-    // Main action buttons
     document.getElementById('addSongBtn').disabled = isViewer;
     document.getElementById('saveHistoryBtn').disabled = isViewer;
     document.getElementById('clearSetBtn').disabled = isViewer;
     document.getElementById('serviceName').disabled = isViewer;
     document.getElementById('serviceDate').disabled = isViewer;
 
-    // Library Tab Admin controls
     document.getElementById('singerAdminControls').style.display = isAdmin ? 'flex' : 'none';
     document.getElementById('libraryAdminAddForm').style.display = isAdmin ? 'grid' : 'none';
 
@@ -437,7 +452,7 @@
     renderLibraryList();
   }
 
-  // --- Tab Navigation ---
+  // --- Tabs Navigation ---
   function switchTab(tabId, btn) {
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -445,17 +460,15 @@
     btn.classList.add('active');
   }
 
-  // --- Multilingual Text Normalizer (Arabic, Armenian, English) ---
+  // --- Multilingual Text Normalizer ---
   function normalizeMultilingual(str) {
     if (!str) return "";
     return str
       .toLowerCase()
-      // Normalize Arabic diacritics & letter variations
-      .replace(/[\u064B-\u065F]/g, "") // Tatweel/harakat
+      .replace(/[\u064B-\u065F]/g, "")
       .replace(/[إأآا]/g, "ا")
       .replace(/ى/g, "ي")
       .replace(/ة/g, "ه")
-      // Armenian normalization (handle casing and standard ligatures)
       .trim();
   }
 
@@ -548,7 +561,7 @@
 
     const noteInput = document.createElement('input');
     noteInput.className = 'note-input';
-    noteInput.placeholder = "Transition / Flow Note";
+    noteInput.placeholder = "Transition / Audio / Cue Note";
     noteInput.value = transition;
 
     const driveLinkBtn = document.createElement('a');
@@ -604,7 +617,7 @@
     }
   }
 
-  // --- Song Library & Multilingual Search ---
+  // --- Song Library & Search ---
   function saveLibrary() {
     localStorage.setItem('worship_library', JSON.stringify(library));
     filterLibrarySearch();
@@ -784,9 +797,7 @@
     });
 
     text += `\nPrepared for the Worship Team ✨`;
-
-    const encodedText = encodeURIComponent(text);
-    const whatsappUrl = `https://wa.me/?text=${encodedText}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(whatsappUrl, '_blank');
   }
 
@@ -852,11 +863,12 @@
     }
   }
 
-  // --- Print Preparation ---
+  // --- Dynamic Multi-Role Cut-Slips Generation ---
   function prepareAndPrint() {
     const serviceName = document.getElementById('serviceName').value;
     const serviceDate = document.getElementById('serviceDate').value;
     const copies = parseInt(document.getElementById('slipCopies').value) || 4;
+    const targetRole = document.getElementById('slipTargetRole').value;
     const rows = getActiveSetlistData();
 
     if (rows.length === 0) return alert('Please add at least one song to your setlist.');
@@ -868,34 +880,86 @@
       const slip = document.createElement('div');
       slip.className = 'cut-slip';
 
-      let rowsHtml = rows.map((r, idx) => `
-        <tr>
-          <td class="slip-num">${idx + 1}.</td>
-          <td>
-            <strong>${r.title}</strong>
-            ${r.note ? `<span class="transition-note">↳ ${r.note}</span>` : ''}
-          </td>
-          <td><span class="badge-key">${r.key}</span></td>
-          <td>${r.singer || '-'}</td>
-        </tr>
-      `).join('');
+      let tableHeaderHtml = '';
+      let rowsHtml = '';
+      let headerThemeClass = '';
+      let roleLabel = '';
+
+      if (targetRole === 'sound') {
+        // Sound Engineer Preset (Mics & Vocal cues prioritised)
+        headerThemeClass = 'sound-theme';
+        roleLabel = '🎛️ Sound Tech';
+        tableHeaderHtml = `
+          <tr>
+            <th>#</th>
+            <th>Song & Audio Cues</th>
+            <th>Primary Lead Mic</th>
+          </tr>
+        `;
+        rowsHtml = rows.map((r, idx) => `
+          <tr>
+            <td class="slip-num">${idx + 1}.</td>
+            <td>
+              <strong>${r.title}</strong>
+              ${r.note ? `<span class="transition-note">🔊 ${r.note}</span>` : ''}
+            </td>
+            <td><span class="badge-sound-lead">🎤 ${r.singer || 'Choir / Band'}</span></td>
+          </tr>
+        `).join('');
+
+      } else if (targetRole === 'media') {
+        // Media & Slides Preset (Titles, lyric readiness & sequence flow)
+        headerThemeClass = 'media-theme';
+        roleLabel = '📽️ Media / Slides';
+        tableHeaderHtml = `
+          <tr>
+            <th>#</th>
+            <th>Song Title (ProPresenter / Slides)</th>
+            <th>Flow / Transition</th>
+          </tr>
+        `;
+        rowsHtml = rows.map((r, idx) => `
+          <tr>
+            <td class="slip-num">${idx + 1}.</td>
+            <td><strong>${r.title}</strong></td>
+            <td><span style="font-size: 11px; color: #475569;">${r.note ? r.note : 'Standard arrangement'}</span></td>
+          </tr>
+        `).join('');
+
+      } else {
+        // Musicians & Vocalists Default Preset
+        roleLabel = '🎵 Musicians';
+        tableHeaderHtml = `
+          <tr>
+            <th>#</th>
+            <th>Song / Flow Note</th>
+            <th>Key</th>
+            <th>Lead</th>
+          </tr>
+        `;
+        rowsHtml = rows.map((r, idx) => `
+          <tr>
+            <td class="slip-num">${idx + 1}.</td>
+            <td>
+              <strong>${r.title}</strong>
+              ${r.note ? `<span class="transition-note">↳ ${r.note}</span>` : ''}
+            </td>
+            <td><span class="badge-key">${r.key}</span></td>
+            <td>${r.singer || '-'}</td>
+          </tr>
+        `).join('');
+      }
 
       slip.innerHTML = `
         <div class="scissor-guide">✂ - - - - -</div>
         <div>
-          <div class="cut-slip-header">
+          <div class="cut-slip-header ${headerThemeClass}">
+            <span class="role-tag">${roleLabel}</span>
             <h1>${serviceName}</h1>
             <div class="cut-slip-meta">${serviceDate}</div>
           </div>
           <table class="slip-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Song / Transition</th>
-                <th>Key</th>
-                <th>Lead</th>
-              </tr>
-            </thead>
+            <thead>${tableHeaderHtml}</thead>
             <tbody>${rowsHtml}</tbody>
           </table>
         </div>
